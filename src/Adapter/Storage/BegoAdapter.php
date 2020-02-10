@@ -3,6 +3,7 @@
 namespace Una\Adapter\Storage;
 
 use Una\Adapter\Storable;
+use Una\Exception;
 use Aws\DynamoDb;
 use Bego;
 
@@ -43,15 +44,22 @@ class BegoAdapter implements Storable
     {
         $item = $this->_table->query()
             ->key($id)
-            /*
-            ->condition(
-                Bego\Condition::attribute('Expiry')->gt(gmdate('U'))
-            )
-            */
             ->fetch()
             ->first();
 
-        return $item ? $item->attribute('Secret') : null;
+        if (!$item) {
+            throw new Exception\MissingExpired(
+                'Token invalid or already used'
+            );
+        }
+
+        if ($item->attribute('Expiry') < gmdate('U')) {
+            throw new Exception\TokenExpired(
+                'Token expired at ' . date('r', $item->attribute('Expiry'))
+            );
+        }
+
+        return $item->attribute('Secret');
     }
 
     public function save($hash, $ttl = 86400)

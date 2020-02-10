@@ -28,10 +28,6 @@ class Factory
 
         $hash = $spec['storage']->fetch($id);
 
-        if ($hash === null) {
-            return false;
-        }
-
         if (!$spec['hasher']->verify($hash, $secret)) {
             return false;
         }
