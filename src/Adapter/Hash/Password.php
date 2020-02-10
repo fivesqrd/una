@@ -11,8 +11,8 @@ class Password implements Hashable
         return password_hash($cleartext, PASSWORD_DEFAULT);
     }
 
-    public function verify($hash)
+    public function verify($hash, $cleartext)
     {
-        return password_verify($hash, PASSWORD_DEFAULT);
+        return password_verify($cleartext, $hash);
     }
 }

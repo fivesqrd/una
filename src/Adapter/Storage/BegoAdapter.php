@@ -34,18 +34,24 @@ class BegoAdapter implements Storable
 
     public function delete($id)
     {
-        return $this->delete(
+        return $this->_table->delete(
             new Bego\Item(['Id' => $id])
         );
     }
 
     public function fetch($id)
     {
-        return $this->_table->query()
+        $item = $this->_table->query()
             ->key($id)
-            ->condition(Condition::attribute('Expiry')->gt(gmdate('U')))
+            /*
+            ->condition(
+                Bego\Condition::attribute('Expiry')->gt(gmdate('U'))
+            )
+            */
             ->fetch()
-            ->attribute('Secret');
+            ->first();
+
+        return $item ? $item->attribute('Secret') : null;
     }
 
     public function save($hash, $ttl = 86400)

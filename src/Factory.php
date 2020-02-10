@@ -26,7 +26,13 @@ class Factory
     {
         $spec = $this->spec();
 
-        if ($spec['storage']->fetch($id) != $spec['hasher']->verify($secret)) {
+        $hash = $spec['storage']->fetch($id);
+
+        if ($hash === null) {
+            return false;
+        }
+
+        if (!$spec['hasher']->verify($hash, $secret)) {
             return false;
         }
 

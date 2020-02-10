@@ -6,5 +6,5 @@ interface Hashable
 {
     public function encode($text);
 
-    public function verify($crypt);
+    public function verify($hash, $text);
 }
