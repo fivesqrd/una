@@ -48,7 +48,7 @@ class BegoAdapter implements Storable
             ->first();
 
         if (!$item) {
-            throw new Exception\MissingExpired(
+            throw new Exception\TokenExpired(
                 'Token invalid or already used'
             );
         }
