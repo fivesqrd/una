@@ -48,13 +48,13 @@ class BegoAdapter implements Storable
             ->first();
 
         if (!$item) {
-            throw new Exception\TokenExpired(
+            throw new Exception\MissingToken(
                 'Token invalid or already used'
             );
         }
 
         if ($item->attribute('Expiry') < gmdate('U')) {
-            throw new Exception\TokenExpired(
+            throw new Exception\ExpiredToken(
                 'Token expired at ' . date('r', $item->attribute('Expiry'))
             );
         }
