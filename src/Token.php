@@ -51,12 +51,6 @@ class Token
         return $this;
     }
 
-    public function identity($value)
-    {
-        $this->_identity = $value;
-        return $this;
-    }
-
     public function store(Adapter\Hashable $hashable = null)
     {
         /* Fallback to the default hasher if none specified */
@@ -82,7 +76,7 @@ class Token
     {
         /* We need a stored value if we're going to send it out */
 
-        if (!$this->_id) {
+        if (!$this->_key) {
             $this->store();
         }
 
