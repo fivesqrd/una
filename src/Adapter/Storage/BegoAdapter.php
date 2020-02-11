@@ -33,11 +33,9 @@ class BegoAdapter implements Storable
         $this->_table = $table;
     }
 
-    public function delete($id)
+    public function delete($item)
     {
-        return $this->_table->delete(
-            new Bego\Item(['Id' => $id])
-        );
+        return $this->_table->delete($item);
     }
 
     public function fetch($id)
@@ -59,14 +57,31 @@ class BegoAdapter implements Storable
             );
         }
 
-        return $item->attribute('Secret');
+        return $item;
     }
 
-    public function save($hash, $ttl = 86400)
+    public function verify($hasher, $id, $secret)
+    {
+        $item = $this->fetch($id);
+
+        if (!$hasher->verify($item->attribute('Secret'), $secret)) {
+            throw new Exception\FailedVerification(
+                'Verification faild'
+            );
+        }
+
+        /* Invalidate token immediately */
+        $this->delete($item);
+
+        return $item->attribute('Payload');
+    }
+
+    public function save($hash, $payload, $ttl = 86400)
     {
         $result = $this->_table->put([
             'Id'          => uniqid(),
             'Secret'      => $hash,
+            'Payload'     => $payload,
             'Expiry'      => gmdate('U') + $ttl
         ]);
 

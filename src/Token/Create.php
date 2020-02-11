@@ -1,10 +1,10 @@
 <?php
 
-namespace Una;
+namespace Una\Token;
 
 use Una\Adapter;
 
-class Token
+class Create
 {
     protected $_storage;
 
@@ -18,7 +18,7 @@ class Token
 
     protected $_payload;
 
-    protected $_key;
+    protected $_id;
 
     protected $_reference;
 
@@ -39,15 +39,15 @@ class Token
         return $this;
     }
 
-    public function ttl($value)
+    public function payload($value)
     {
-        $this->_ttl = $value;
+        $this->_payload = $payload;
         return $this;
     }
 
-    public function payload($value)
+    public function ttl($value)
     {
-        $this->_payload = $value;
+        $this->_ttl = $value;
         return $this;
     }
 
@@ -71,7 +71,7 @@ class Token
 
         /* Persist the secret and keep a reference of the id */
 
-        $this->_key = $this->_storage->save(
+        $this->_id = $this->_storage->save(
             $hasher->encode($this->_secret), $this->_payload, $this->_ttl
         );
 
@@ -91,21 +91,10 @@ class Token
         }
 
         if ($callable instanceof Adapter\Sendable) {
-            $this->_reference = $callable->send($this);
+            $callable->send($this);
         }
 
         return $this;
-    }
-
-    public function properties()
-    {
-        return [
-            'payload'   => $this->_payload,
-            'secret'    => $this->_secret,
-            'reference' => $this->_reference,
-            'ttl'       => $this->_ttl,
-            'key'       => $this->_key,
-        ];
     }
 
     public function raw()
@@ -113,9 +102,9 @@ class Token
         return $this->_secret;
     }
     
-    public function key()
+    public function id()
     {
-        return $this->_key;
+        return $this->_id;
     }
 
     public function reference()

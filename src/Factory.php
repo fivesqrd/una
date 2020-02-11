@@ -24,21 +24,12 @@ class Factory
 
     public function verify($id, $secret)
     {
-        $spec = $this->spec();
-
-        $hash = $spec['storage']->fetch($id);
-
-        if (!$spec['hasher']->verify($hash, $secret)) {
-            return false;
-        }
-
-        /* Invalidate token */
-        $spec['storage']->delete($id);
-
-        return true;
+        return $this->spec('storage')->verify(
+            $this->spec('hasher'), $id, $secret
+        );
     }
 
-    public function spec()
+    public function spec($key = null)
     {
         $defaults = [
             'randomiser' => new Adapter\Randomiser\Numeric([
@@ -47,6 +38,12 @@ class Factory
             'hasher'     => new Adapter\Hash\Password()
         ];
 
-        return array_merge($defaults, $this->_spec);
+        $spec = array_merge($defaults, $this->_spec);
+
+        if ($key) {
+            return $spec[$key];
+        }
+
+        return $spec;
     }
 }

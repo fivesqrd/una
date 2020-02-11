@@ -6,7 +6,7 @@ interface Storable
 {
     public function delete($id);
 
-    public function fetch($id);
+    public function verify($hasher, $id, $secret);
 
-    public function save($secret, $ttl = 86400);
+    public function save($secret, $payload, $ttl = 86400);
 }
