@@ -3,14 +3,28 @@ Simple PHP library for storing and sending OTPs / 2FAs
 
 ## Creating an OTP token
 ```
+Use Una\Adapter;
+
+/* Initialise the factory class with some defaults */
 $factory = new Una\Factory([
-    'storage'    => '',
-    'randomiser' => '',
-    'hasher'     => '',
+    'storage'    => Adapter\Storage\BegoAdapter::instance([
+        'table' => 'My-Table',
+        'aws'   => [
+            'region' => 'eu-west-1',
+            'credentials'   => [
+                'key'    => 'mykey',
+                'secret' => 'mysecret',
+            ]
+        ],
+    ]),
+    'randomiser' => new Adapter\Randomiser\Numeric([
+        'length' => 5
+    ]),
+    'hasher'     => new Adapter\Hash\Password()
 ]);
 
+/* Create a fresh token */
 $token = $factory->create()
-    ->scope('My-App')
     ->ttl(86400)
     ->notify(function($secret) {
         mail();    
@@ -18,24 +32,33 @@ $token = $factory->create()
 
 echo $token->raw();
 echo $token->hashed();
+```
 
+Specifying a token's payload
+```
 $token = $factory->create()
-    ->randomise(new Numeric(['length' => 5]))
-    ->scope('My-App')
+    ->payload($userId)
     ->ttl(86400)
     ->notify(function($secret) {
         mail();    
     });
-
-echo $token->raw();
-
-echo $token->hashed();
+```
+Token with complex payload
+```
+$token = $factory->create()
+    ->payload([
+        'userId' => $userId,
+        'time'   => time()
+    ])
+    ->ttl(86400)
+    ->notify(function($secret) {
+        mail();    
+    });
 ```
 
 Specifying a secret
 ```
 $token = $factory->create(12345)
-    ->scope('My-App')
     ->notify(function($secret) {
         mail();
     });
@@ -45,12 +68,11 @@ echo $token->raw(); //12345
 echo $token->hashed();
 ```
 
-Specifying a random generator
+Specifying a custom random generator. Custom generators implement the Una\Adapter\Randomisable interface.
 ```
 use Una\Adapter\Randomiser\AlphaNumeric;
 
 $token = $factory->create()
-    ->scope('My-App')
     ->randomise(new AlphaNumeric())
     ->notify(function($secret) {
         mail();    
@@ -66,7 +88,6 @@ Overriding the default ttl
 use Una\Adapter\Randomiser\AlphaNumeric;
 
 $token = $factory->create()
-    ->scope('My-App')
     ->ttl(86400) //24 hours
     ->notify(function($secret) {
         mail();    
