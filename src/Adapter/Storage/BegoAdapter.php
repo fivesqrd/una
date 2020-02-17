@@ -65,8 +65,8 @@ class BegoAdapter implements Storable
         $item = $this->fetch($id);
 
         if (!$hasher->verify($item->attribute('Secret'), $secret)) {
-            throw new Exception\FailedVerification(
-                'Verification faild'
+            throw new Exception\VerificationFailed(
+                'Verification failed'
             );
         }
 
